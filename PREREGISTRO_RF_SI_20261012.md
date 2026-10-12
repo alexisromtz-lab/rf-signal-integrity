@@ -323,3 +323,59 @@ LINEAS_PRE, HUELLA) y no se abre el destino sin una corrida con RC 0.
          incidente por corrida de referencia (seccion 4), y la descomposicion
          modal es la identidad, porque hay UN modo y su proyeccion no filtra
          nada. La exencion cubre SOLO el benchmark 1D. No cubre microstrip 2D.
+
+## APENDICE A12 — ACTA DE CALIBRACION DE BENCHMARK 1 (ESCALON TEM 1D, PARAMETROS S)
+
+T_UTC_APENDICE = 2026-10-12T22:10:14Z
+UNIVERSO DECLARADO: los 2 crudos de la corrida doble persistidos en registros/20261012/ + el instrumento persistido; MOTOR = solver_escalon_s.py (v2, git blob d9acd256d9726ec606740d7825498d2adbd7b200) + python3/wc/shasum/grep; UNIDAD = linea/byte/celda/razon adimensional/dB; VENTANA = el T_UTC de arriba.
+
+### A12.1 IDENTIDAD DE LO MEDIDO
+- crudo sellado: registros/20261012/rf_b1_crudo_sellado_20261012T205817Z.txt · 51 l · 4029 B · sha16 71b77f8d2e9863e5 (barrido sellado dx = 1e-3 / 5e-4 / 2.5e-4 m)
+- crudo extra: registros/20261012/rf_b1_crudo_extra_20261012T205836Z.txt · 71 l · 5752 B · sha16 62cebe9833f63d8c (mallas extra --dx-extra 1.25e-4,6.25e-5)
+- instrumento: registros/20261012/instrumento_L128_00.sh · 70 l · 3363 B · sha16 40e30cbaeeb5c9cf
+- commit de custodia: 4e78c5ee081d55b6d0e1a8c1d4aa8fc77f4233fe (arbol limpio)
+- solver v2: 572 l · 22227 B · sha16 d03695e3e1df7d99 · git blob d9acd256d9726ec606740d7825498d2adbd7b200
+- referencias analiticas: |S11| = 0.333333333333, |S21| = 0.942809041582, |S11|^2+|S21|^2 = 1.0
+- control de regresion de la propia pieza: R1 = 0, R2 = 0, R3 = 0
+
+### A12.2 TABLA DE CONVERGENCIA (ORDEN p = 2) — BARRIDO SELLADO + MALLAS EXTRA
+| dx (m) | celdas/lam0 | |S11| | e11 % | |S21| | e21 % | unitariedad | cola dB | n_celdas | n_pasos | N_ABS |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1.0e-3 | 30 | 0.34083325 | 2.2500 | 0.94811207 | 0.5625 | 1.01508380 | -72.80 | 1181 | 4797 | 80 |
+| 5.0e-4 | 60 | 0.33517453 | 0.5524 | 0.94411094 | 0.1381 | 1.00368744 | -72.37 | 2360 | 9594 | 160 |
+| 2.5e-4 | 120 | 0.33379157 | 0.1375 | 0.94313307 | 0.0344 | 1.00091679 | -72.22 | 4718 | 19187 | 320 |
+| 1.25e-4 | 240 | 0.33344777 | 0.0343 | 0.94288996 | 0.0086 | 1.00022888 | -72.16 | 9435 | 38374 | 640 |
+| 6.25e-5 | 480 | 0.33336193 | 0.0086 | 0.94282926 | 0.0021 | 1.00005720 | -72.13 | 18870 | 76747 | 1280 |
+
+Razones por duplicacion de malla (lo que declara el orden):
+- e11 %: 2.2500/0.5524 = 4.073 · 0.5524/0.1375 = 4.017 · 0.1375/0.0343 = 4.008 · 0.0343/0.0086 = 3.988
+- residuo de unitariedad (|S11|^2+|S21|^2 - 1): 4.090 · 4.021 · 4.005 · 4.001
+El factor cercano a 4 por duplicacion de malla es la firma de p = 2 (segundo orden). La razon e11/e21 se mantiene exactamente 4 en las cinco filas: dato estructural de la normalizacion de onda de potencia, no una coincidencia de la corrida.
+
+### A12.3 CRITERIO C1.1 — FALLA FORMAL EN LAS CUATRO MALLAS NOMINALES
+Umbral sellado (C11_TOL_ABS = 1.0e-4, §4) aplicado al residuo |S11|^2+|S21|^2 - 1:
+- 1.0e-3 m: residuo 0.01508380 -> FALLA
+- 5.0e-4 m: residuo 0.00368744 -> FALLA
+- 2.5e-4 m: residuo 0.00091679 -> FALLA
+- 1.25e-4 m: residuo 0.00022888 -> FALLA
+Las cuatro mallas nominales FALLAN C1.1. N4 declarado: el umbral 1.0e-4 NO se mueve; el defecto es de DOMINIO (dispersion numerica de la malla), no del criterio. La malla necesaria se declara aparte (dx <= 8.25e-5 m, ~360 celdas/lam0) y NO se sustituye el criterio por ella.
+El barrido sellado cierra con VEREDICTO: NO PASA / CONTROL NO DISCRIMINA.
+
+### A12.4 PASE CONDICIONADO EN LA MALLA EXTRA
+En la malla extra dx = 6.25e-5 m (~480 celdas/lam0), fuera del barrido sellado y declarada como tal:
+- residuo 0.00005720 <= 1.0e-4 -> C1.1 PASA
+- C1.2 (|S11| rel 1 %) PASA · C1.3 (|S21| rel 1 %) PASA · C1.4 (cola <= -60 dB) PASA
+Corrida extra: VEREDICTO: PASA EN ALGUNA RESOLUCION / CONTROL NO DISCRIMINA.
+Lectura: el pase NO se obtiene aflojando el umbral; se obtiene sobre una malla declarada, con el umbral intacto. El cruce observado esta entre 1.25e-4 m (FALLA) y 6.25e-5 m (PASA), consistente con la malla requerida declarada en A11.7. C1.2 pasa a partir de 0.5 mm; C1.3 y C1.4 pasan en las tres mallas selladas.
+
+### A12.5 OBSERVACION: LA POTENCIA DISCRIMINANTE DEL CONTROL DECAE CON LA MALLA
+control_dif_max (diferencia entre el pico coherente de referencia y la suma lineal incoherente) por malla:
+- 1.0e-3 m: 0.010029 -> DISCRIMINA (supera el umbral nombrado C_CTRL_DIF_MIN = 1.0e-2)
+- 5.0e-4 m: 0.002438 -> NO DISCRIMINA
+- 2.5e-4 m: 0.000605 -> NO DISCRIMINA
+- 1.25e-4 m: 0.000151 -> NO DISCRIMINA
+- 6.25e-5 m: 0.000038 -> NO DISCRIMINA
+El control pierde potencia ~factor 4 por refinamiento (misma ley que el residuo). Consecuencia declarada: el sufijo de veredicto CONTROL NO DISCRIMINA es correcto y se imprime por resolucion en el crudo, no solo para la primera fila. Queda asentado tal cual: el control discrimina en malla gruesa y se vuelve mudo conforme la malla converge, sin que eso toque los criterios fisicos C1.1-C1.4.
+
+### A12.6 NOTA DE CONTEO DEL INSTRUMENTO
+El instrumento persistido registros/20261012/instrumento_L128_00.sh mide 70 l / 3363 B / sha16 40e30cbaeeb5c9cf. La copia de trabajo /tmp/inst_rfsi/L128_00.sh reporto 71 l con el MISMO numero de bytes; la diferencia es de conteo de salto de linea final, no de contenido. La cifra autoritativa es la persistida (70 l). El defecto de la primera redaccion (crudo nacido caduco por G3) queda cerrado: el instrumento vive junto a sus crudos.
