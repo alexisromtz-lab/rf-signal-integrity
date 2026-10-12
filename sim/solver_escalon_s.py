@@ -134,6 +134,13 @@ C12_REL = 1.0e-2
 C13_REL = 1.0e-2
 C14_DB = -60.0
 
+# Umbral de DISCRIMINACION DEL CONTROL: el control es el barrido de frecuencia
+# con las mismas compuertas. Se declara discriminante si la variacion relativa de
+# |S11| dentro del barrido supera el 1 % (la misma tolerancia de C1.2/C1.3).
+# NO es un criterio sellado del pre-registro: es la exigencia de que el control
+# PUEDA diferir. Se nombra aqui para que el umbral no viva duplicado sin nombre.
+C_CTRL_DIF_MIN = 1.0e-2
+
 DX_SELLADAS = (1.0e-3, 0.5e-3, 0.25e-3)
 FREC_CONTROL = (8.0e9, 9.0e9, 10.0e9, 11.0e9, 12.0e9)
 
@@ -267,7 +274,7 @@ def correr_resolucion(dx):
     dif_max = 0.0
     if s11_med > 0.0 and control:
         dif_max = max(abs(v - s11_med) / s11_med for _, v in control)
-    control_discrimina = bool(control) and (dif_max > 0.01)
+    control_discrimina = bool(control) and (dif_max > C_CTRL_DIF_MIN)
 
     c11 = bool(d_pot <= C11_TOL_ABS)
     c12 = bool(e11 <= C12_REL)
@@ -537,13 +544,21 @@ def main(argv=None):
         )
         for it in filas[0]["espectro_control"]:
             print("  f=%.4e Hz  |S11_control|=%.9f" % (it["f_hz"], it["s11_abs"]))
+        print("")
         print(
-            "  discriminacion medida: max|S11_control-S11_f0|/S11_f0 = %.6f  -> %s"
-            % (
-                filas[0]["control_dif_max"],
-                "DISCRIMINA" if filas[0]["control_discrimina"] else "NO DISCRIMINA",
-            )
+            "CONTROL POR RESOLUCION (el veredicto sufija NO DISCRIMINA si ALGUNA fila "
+            "no discrimina; por eso se imprimen TODAS, no solo la primera)"
         )
+        for r in filas:
+            print(
+                "  dx=%.4g m  max|S11_control-S11_f0|/S11_f0 = %.6f  umbral %.2f  -> %s"
+                % (
+                    r["dx_m"],
+                    r["control_dif_max"],
+                    C_CTRL_DIF_MIN,
+                    "DISCRIMINA" if r["control_discrimina"] else "NO DISCRIMINA",
+                )
+            )
 
     print("")
     if fallo is not None:

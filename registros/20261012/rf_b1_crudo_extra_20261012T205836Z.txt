@@ -1,0 +1,71 @@
+UNIVERSO DECLARADO: Benchmark 1 TEM 1D, eps1=1.0 eps2=4.0, f0=1.0e10 Hz, geometria declarada en lambda_vacio, L_ESP=0.08 m, esponja en los dos extremos
+MOTOR: FDTD 1D Yee (Ez en nodo, Hy en semipaso), S_CFL=0.5, sigma_max=-(m+1)*ln(R0)/(2*eta0*L_ESP)=1.375206 S/m, m=3, R0=1e-09
+UNIDAD: Ez en V/m en nodo; celdas / muestras temporales / s / Hz / ohm declarados en el encabezado de la tabla
+VENTANA: 2026-10-12T20:58:36Z | espectral f0=1.0e10 Hz con celdas por lambda_vacio en la tabla | temporal W=6*tau=900 ps | barrido sellado dx=1.0e-3 5.0e-4 2.5e-4 m
+ANALITICO: Z1=376.730313668 ohm Z2=188.365156834 ohm S11=-0.333333333333 |S11|=0.333333333333 |S21|=0.942809041582 |S11|^2+|S21|^2=1.000000000000
+dx_m  celdas/lambda_vacio  celdas/lambda_eps2  N_ABS  n_celdas  n_pasos  |S11|  e11_por_ciento  |S21|  e21_por_ciento  potencia  cola_dB
+TOTAL_LINEAS_ENCABEZADO = 6
+0.001        30.0     60.0    80     1181     4797 0.34083325       2.2500 0.94811207       0.5625 1.01508380   -72.80
+         arribos declarados en ps: t_inc=750.1 t_ref=1750.8 t_tra=1750.8 t_doble=2751.5 t_eco_cota=4786.2
+         separaciones en ps: rebote_vs_compuerta_ref=100.7 eco_vs_compuerta_tra=2135.4 | geometria_limpia=True | pico de cola medido en t=4651.6 ps
+         fases medidas en grados: s11=-175.436 s21=-23.669 (incluyen el retardo de ida y vuelta; la comparacion sellada es de magnitudes)
+0.0005       60.0    119.9   160     2360     9594 0.33517453       0.5524 0.94411094       0.1381 1.00368744   -72.37
+         arribos declarados en ps: t_inc=750.1 t_ref=1750.8 t_tra=1750.8 t_doble=2751.5 t_eco_cota=4786.2
+         separaciones en ps: rebote_vs_compuerta_ref=100.7 eco_vs_compuerta_tra=2135.4 | geometria_limpia=True | pico de cola medido en t=4649.0 ps
+         fases medidas en grados: s11=-177.724 s21=-9.229 (incluyen el retardo de ida y vuelta; la comparacion sellada es de magnitudes)
+0.00025     119.9    239.8   320     4718    19187 0.33379157       0.1375 0.94313307       0.0344 1.00091679   -72.22
+         arribos declarados en ps: t_inc=750.1 t_ref=1749.1 t_tra=1750.0 t_doble=2748.2 t_eco_cota=4782.9
+         separaciones en ps: rebote_vs_compuerta_ref=99.0 eco_vs_compuerta_tra=2132.9 | geometria_limpia=True | pico de cola medido en t=4644.5 ps
+         fases medidas en grados: s11=-173.794 s21=-1.920 (incluyen el retardo de ida y vuelta; la comparacion sellada es de magnitudes)
+0.000125    239.8    479.7   640     9435    38374 0.33344777       0.0343 0.94288996       0.0086 1.00022888   -72.16
+         arribos declarados en ps: t_inc=749.7 t_ref=1749.5 t_tra=1750.0 t_doble=2749.4 t_eco_cota=4783.3
+         separaciones en ps: rebote_vs_compuerta_ref=99.9 eco_vs_compuerta_tra=2133.3 | geometria_limpia=True | pico de cola medido en t=4644.5 ps
+         fases medidas en grados: s11=-178.066 s21=-1.974 (incluyen el retardo de ida y vuelta; la comparacion sellada es de magnitudes)
+6.25e-05    479.7    959.3  1280    18870    76747 0.33336193       0.0086 0.94282926       0.0021 1.00005720   -72.13
+         arribos declarados en ps: t_inc=750.1 t_ref=1750.0 t_tra=1750.0 t_doble=2749.8 t_eco_cota=4783.7
+         separaciones en ps: rebote_vs_compuerta_ref=99.9 eco_vs_compuerta_tra=2133.8 | geometria_limpia=True | pico de cola medido en t=4644.9 ps
+         fases medidas en grados: s11=-178.759 s21=0.077 (incluyen el retardo de ida y vuelta; la comparacion sellada es de magnitudes)
+
+CRITERIOS SELLADOS (seccion 4 del pre-registro; los cuatro se reportan juntos)
+  dx=0.001 m
+    C1.1 medido |potencia-1|=0.015083801  umbral 1.0e-04  -> FALLA
+    C1.2 medido e11=0.022500  umbral 0.010000  -> FALLA
+    C1.3 medido e21=0.005625  umbral 0.010000  -> PASA
+    C1.4 medido cola=-72.803989 dB  umbral -60.0 dB  -> PASA
+  dx=0.0005 m
+    C1.1 medido |potencia-1|=0.003687443  umbral 1.0e-04  -> FALLA
+    C1.2 medido e11=0.005524  umbral 0.010000  -> PASA
+    C1.3 medido e21=0.001381  umbral 0.010000  -> PASA
+    C1.4 medido cola=-72.373725 dB  umbral -60.0 dB  -> PASA
+  dx=0.00025 m
+    C1.1 medido |potencia-1|=0.000916794  umbral 1.0e-04  -> FALLA
+    C1.2 medido e11=0.001375  umbral 0.010000  -> PASA
+    C1.3 medido e21=0.000344  umbral 0.010000  -> PASA
+    C1.4 medido cola=-72.220763 dB  umbral -60.0 dB  -> PASA
+  dx=0.000125 m
+    C1.1 medido |potencia-1|=0.000228884  umbral 1.0e-04  -> FALLA
+    C1.2 medido e11=0.000343  umbral 0.010000  -> PASA
+    C1.3 medido e21=0.000086  umbral 0.010000  -> PASA
+    C1.4 medido cola=-72.160804 dB  umbral -60.0 dB  -> PASA
+  dx=6.25e-05 m
+    C1.1 medido |potencia-1|=0.000057201  umbral 1.0e-04  -> PASA
+    C1.2 medido e11=0.000086  umbral 0.010000  -> PASA
+    C1.3 medido e21=0.000021  umbral 0.010000  -> PASA
+    C1.4 medido cola=-72.134995 dB  umbral -60.0 dB  -> PASA
+
+ESPECTRO DE CONTROL sobre dx=0.001 m, mismas compuertas (una salida que no puede diferir no es evidencia)
+  f=8.0000e+09 Hz  |S11_control|=0.338091122
+  f=9.0000e+09 Hz  |S11_control|=0.339380165
+  f=1.0000e+10 Hz  |S11_control|=0.340833248
+  f=1.1000e+10 Hz  |S11_control|=0.342455127
+  f=1.2000e+10 Hz  |S11_control|=0.344251523
+
+CONTROL POR RESOLUCION (el veredicto sufija NO DISCRIMINA si ALGUNA fila no discrimina; por eso se imprimen TODAS, no solo la primera)
+  dx=0.001 m  max|S11_control-S11_f0|/S11_f0 = 0.010029  umbral 0.01  -> DISCRIMINA
+  dx=0.0005 m  max|S11_control-S11_f0|/S11_f0 = 0.002438  umbral 0.01  -> NO DISCRIMINA
+  dx=0.00025 m  max|S11_control-S11_f0|/S11_f0 = 0.000605  umbral 0.01  -> NO DISCRIMINA
+  dx=0.000125 m  max|S11_control-S11_f0|/S11_f0 = 0.000151  umbral 0.01  -> NO DISCRIMINA
+  dx=6.25e-05 m  max|S11_control-S11_f0|/S11_f0 = 0.000038  umbral 0.01  -> NO DISCRIMINA
+
+VEREDICTO: PASA EN ALGUNA RESOLUCION / CONTROL NO DISCRIMINA
+SEGUNDOS_RELOJ = 13.263
