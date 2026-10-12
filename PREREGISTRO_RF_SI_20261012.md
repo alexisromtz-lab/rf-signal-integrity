@@ -226,3 +226,100 @@ LINEAS_PRE, HUELLA) y no se abre el destino sin una corrida con RC 0.
   2026-10-12T16:46:49Z  corte de fase: este archivo se sella con sus umbrales y su
                         deuda de código declarada. Cero cifras de Z0 y de eps_eff
                         porque todavía no hay comando que las produzca.
+
+  --- APENDICE A11 · ERRATA DECLARADA (no se parchea lo sellado) ---
+
+  2026-10-12T20:50:07Z  APENDICE A11: errata de compuerta temporal, de signo, de
+                        esponja y de geometria. Se declara ANTES de la corrida que
+                        se reporta. Las secciones 1 a 10 no se editan: esta
+                        bitacora es el unico destino que crece.
+
+  A11.1  LA SECCION 4 NO SELLABA COMPUERTA TEMPORAL DE DFT. La seccion 6 congela
+         la VENTANA ESPECTRAL (frecuencia unica, con 20 celdas por longitud de
+         onda guiada de la linea de mayor impedancia) y el piso de ruido, pero en
+         ninguna linea del sello se fija la ventana de TIEMPO sobre la que se
+         integra la DFT. Medido: el token tau aparece 0 veces en este archivo.
+           UNIVERSO DECLARADO: este archivo, 228 lineas, sin el arbol .git
+           MOTOR:  grep -c -i tau PREREGISTRO_RF_SI_20261012.md
+           UNIDAD: lineas
+           VENTANA: 2026-10-12T20:50:07Z
+         La compuerta se declara ahora, con parametros declarados y no leidos de
+         la salida:
+             tau = 1.5 / f0 = 150 ps        td = 4 tau = 600 ps
+             W   = 6 tau = 900 ps
+         Declaracion honesta: W se eligio DESPUES de ver la serie temporal cruda
+         del primer borrador. Es familia (a) auto-declarada y NO se adjudica; lo
+         que la contiene es que la compuerta no se mueve de aqui en adelante. N4
+         no se viola: el umbral que se fija ahora no es C1.1 a C1.4.
+
+  A11.2  EL SIGNO DEL ACOPLAMIENTO EN LA ACTUALIZACION DE Ez ESTABA INVERTIDO en
+         el primer borrador y la corrida divergia a nan. Ambas leyes de curl
+         llevan el mismo signo. Medido en aislado, con el signo correcto:
+         ca_min = -0.017760506729551807, ca_max = 1.0, cb_max = 188.365156834,
+         ch = 0.0013272093639924967. Con el signo invertido: max|Ez| = 1.65e-22
+         en el paso 0 y 6.770125078715512e+157 en el paso 400.
+
+  A11.3  LA ESPONJA ESTABA DEFINIDA EN CELDAS, no en longitud fisica: su longitud
+         se partia a la mitad en cada refinamiento. Por eso la cola ABSORBIDA
+         empeoraba al refinar (-72.89, -33.22 y -14.30 dB en el barrido sellado,
+         que es el defecto opuesto al que un refinamiento debe producir). Se fija
+         longitud fisica L_ESP = 80e-3 m y N_ABS = int(round(L_ESP/dx)) celdas.
+
+  A11.4  LA FORMULA DEL PERFIL LLEVABA FACTOR CUATRO. Se usaba
+         sigma = -2*(M+1)*ln(R0)/(eta*L) en lugar de
+         sigma = -(M+1)*ln(R0)/(2*eta*L): cuatro veces el valor de Taflove. Con
+         la forma defectuosa y L = 40 mm salia sigma_max = 11.0016 S/m. Barrido
+         declarado que lo midio:
+           UNIVERSO DECLARADO: FDTD 1D, eps1=1.0, eps2=4.0, f0=10 GHz, dx=1e-3 m,
+             n=4000 celdas, fuente=560, monitor1=605, pasos=3598 (T=6.0 ns),
+             W=900 ps
+           MOTOR:  heredoc ad hoc del 12-Oct-2026 (ver A11.6)
+           UNIDAD: decibelios de la cola respecto del pico de la incidente
+           VENTANA: 2026-10-12 (sesion de medicion; hora de reloj no conservada)
+             N_ABS= 40   L= 40 mm   m=3   sigma=2.7504 S/m   cola=-33.37 dB
+             N_ABS= 80   L= 80 mm   m=3   sigma=1.3752 S/m   cola=-74.93 dB
+             N_ABS=160   L=160 mm   m=3   sigma=0.6876 S/m   cola=-84.77 dB
+             N_ABS=240   L=240 mm   m=3   sigma=0.4584 S/m   cola=-84.85 dB
+         Se elige N_ABS = 80 celdas a dx = 1e-3 m (L = 80 mm), m = 3, R0 = 1e-9,
+         sigma_max = 1.375206 S/m. La cifra 2.7504 S/m del primer borrador queda
+         refutada por medicion, no por preferencia.
+
+  A11.5  LA GEOMETRIA COLISIONABA CON EL DOBLE REBOTE. Con el escalon a 3.0
+         longitudes de onda del monitor 1, el doble rebote llega a
+         t_doble = t_ref + 2*d(mon1,escalon)/v1 = t_ref + 600.4 ps, mientras la
+         compuerta de reflexion se cierra en t_ref + 450 ps. El pulso de doble
+         rebote, de amplitud del orden de |S11|^2 = 0.111111 (cifra de la formula
+         sellada), se solapaba con la compuerta de reflexion. Separacion
+         corregida: 5.0 longitudes de onda, holgura 1000.69 - 900 = 100.69 ps, y
+         la envolvente gaussiana declarada en el borde de la compuerta vale
+         1.4e-06. Consecuencia declarada: las cifras del primer borrador quedan
+         CADUCADAS; el crudo que se reporta es el del solver corregido, y su
+         instrumento es la propia pieza.
+
+  A11.6  EL CRUDO DEL PRIMER BORRADOR NACE CADUCO (guarda G3). El instrumento ad
+         hoc que produjo la tabla decisiva no quedo guardado como archivo en su
+         momento. Se recupero de la transcripcion de la sesion
+         (136ff418-6ffd-44f1-95fd-b5eb4a1f7783.jsonl) por numero de linea: 10
+         heredocs, entre ellos el de 71 lineas y 3363 bytes que produjo la tabla.
+         Su contenido manda sobre cualquier reconstruccion: la pieza corregida
+         toma de el constantes, perfil, fuente, DFT con compuerta y definicion de
+         cola. Los archivos recuperados viven hoy en /tmp/inst_rfsi/ y /tmp es
+         volatil: se declara, no se adjudica. Lo que NO sobrevive es su tabla,
+         porque su geometria era la marginal de A11.5.
+
+  A11.7  C1.1 NO TIENE MALLA DECLARADA. El sello fija tolerancia absoluta 1e-4
+         sobre |S11|^2 + |S21|^2 pero no declara con que malla debe alcanzarse, y
+         el unico barrido autorizado es dx = 1e-3, 5e-4 y 2.5e-4 m, o sea 30, 60
+         y 120 celdas por longitud de onda en el vacio. La linea de MAYOR
+         impedancia es la de EPS1 (Z1 = 376.730313668 ohm > Z2 = 188.365156834
+         ohm): la restriccion de la seccion 6 se mide contra lambda_vacio y se
+         cumple en las tres resoluciones. Si el residuo de la identidad resulta de
+         orden dos en dx, la malla que C1.1 exige se declara como medicion aparte;
+         el umbral NO se mueve (N4).
+
+  A11.8  DISPOSICION SOBRE N5 PARA ESTE BENCHMARK. N5 prohibe publicar un S sin
+         puerto instrumentado y sin descomposicion modal. En esta pieza, 1D y de
+         una sola linea TEM: el puerto ES el plano de monitor con separacion de
+         incidente por corrida de referencia (seccion 4), y la descomposicion
+         modal es la identidad, porque hay UN modo y su proyeccion no filtra
+         nada. La exencion cubre SOLO el benchmark 1D. No cubre microstrip 2D.
