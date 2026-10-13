@@ -543,3 +543,12 @@ G13.2 se cumplió: el motor base de sfqed-paper (sim/maxwell2d.py, 715 l, 30759 
 G13.5 cumplida: cero notación monetaria en este apéndice y en los crudos que cita.
 
 ESTADO: Benchmark 2 CERRADO EN VERDE por C13.1 a C13.4 sobre la malla nominal de 13.5, con el sesgo de truncamiento de caja declarado (eps_eff 2.5e-03 hacia la referencia; Z0 1.8e-03) y con el 2.0% de Z0 todavía pendiente de su decisión. El bloque (las 2 piezas y los 3 crudos) entra en commit atómico de custodia; ninguna cifra de este apéndice se apoya en memoria: todas salen de comando.
+
+### A13.10 SELLO DEL COMMIT DE CUSTODIA
+El bloque de este apéndice entró en UN SOLO commit, sin trocear y sin haber tocado el índice mientras C13.4 estaba en memoria (directiva 1 respetada):
+  COMMIT 0a5afaf9d261565fe135711323a7854d03331044   (0a5afaf)  b2 microstrip 2d: apendice a13 (acta de benchmark 2) y custodia del bloque
+  rama main · HEAD previo 5fbf8291dfc4298e89ae72709004fc04394d0ff3 · 6 rutas en el mismo acto: sim/ref_hammerstad.py, sim/b2_microstrip_2d.py, los tres crudos de registros/20261013/ y este preregistro.
+  Acta contra el HEAD previo: +73 líneas, 0 borradas (472 -> 545 l).
+Post-verificación del árbol: git status --porcelain -uall VACÍO en la ventana 2026-10-13T04:05:02Z. Blob del acta commiteada: 4534f028908e365543e46192a53ac43ee6e55b6f. El proceso de espera del veredicto en segundo plano se cerró: no queda ningún proceso de esta corrida en vuelo.
+
+ESTADO FINAL: Benchmark 2 cerrado en verde y custodiado en 0a5afaf9d261565fe135711323a7854d03331044. Pendiente único de su lado: la decisión sobre el 2.0% de Z0 (13.7 / A13.6). Ninguna cifra de este apéndice se apoya en memoria.
