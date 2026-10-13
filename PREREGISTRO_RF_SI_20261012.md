@@ -379,3 +379,94 @@ El control pierde potencia ~factor 4 por refinamiento (misma ley que el residuo)
 
 ### A12.6 NOTA DE CONTEO DEL INSTRUMENTO
 El instrumento persistido registros/20261012/instrumento_L128_00.sh mide 70 l / 3363 B / sha16 40e30cbaeeb5c9cf. La copia de trabajo /tmp/inst_rfsi/L128_00.sh reporto 71 l con el MISMO numero de bytes; la diferencia es de conteo de salto de linea final, no de contenido. La cifra autoritativa es la persistida (70 l). El defecto de la primera redaccion (crudo nacido caduco por G3) queda cerrado: el instrumento vive junto a sus crudos.
+
+## §13. Pre-registro Benchmark 2: Microstrip 2D Cuasi-Estático (Hammerstad-Jensen)
+
+T_UTC_APENDICE = 2026-10-13T01:52:34Z
+BLOB_PRE_ADENDA = 3a6c99b1d900c8901907b3cdb7938c992e3ca85a
+LINEAS_PRE_ADENDA = 381
+GATE_PRE_ADENDA = RC 0 (pre-vuelo A2.1 corrido sobre la tupla del enunciado, 2026-10-12T22:16:53Z)
+UNIVERSO DECLARADO: este apendice y la referencia analitica que el congela; MOTOR = python3 -B (formas cerradas de la seccion 5 medidas por comando, una linea) + git hash-object/shasum/wc; UNIDAD = razon adimensional / ohm / linea / byte / blob / celda; VENTANA = el T_UTC de arriba.
+
+### 13.1 OBJETO MEDIBLE Y SU DOMINIO
+Dos cantidades, y solo dos, del caso congelado en la seccion 5 (eps_r = 4.2, w/h = 1.0):
+  M1 = permitividad efectiva eps_eff  (adimensional)
+  M2 = impedancia caracteristica Z0   (ohm)
+DOMINIO DECLARADO: w/h <= 1 (seccion 5). El caso w/h = 1.0 esta EN EL BORDE del dominio, no fuera: se declara, porque N5 prohibe publicar un Z0 medido fuera del dominio y el borde cuenta como dentro.
+NO ES OBJETO DE ESTE APENDICE: S11 y S21 del microstrip. A11.8 dice que la exencion de N5 cubre SOLO el benchmark 1D; microstrip 2D no tiene plano de monitor TEM ni modo unico identificable sin puerto modal y sin descomposicion modal. Sin puerto modal no hay S que reportar.
+
+### 13.2 GEOMETRIA DECLARADA (la del enunciado, congelada)
+- sustrato: dielectrico de espesor h, eps_r = 4.2, sin perdidas, homogeneo e isotropo
+- conductor: tira PEC de ancho w, espesor t -> 0, sobre plano de masa PEC infinito en y = 0
+- relacion de aspecto: w/h = 1.0 exacto
+- h es escala: el problema es invariante de escala, y por eso se fija h = 1.000 mm para que toda cifra de malla salga en unidades SI y se pueda volver a medir. Fijar h no es una eleccion fisica: es la unidad de longitud del experimento, y se declara antes de la primera cifra.
+
+### 13.3 REFERENCIA ANALITICA CONGELADA, MEDIDA POR COMANDO
+Formulas: las de la seccion 5, sin cambiar un signo ni un termino.
+  eps_eff = ((eps_r + 1) / 2) + (((eps_r - 1) / 2) * (1 + 12 * h / w)^(-1/2))
+  Z0      = (eta_0 / (2 * pi * sqrt(eps_eff))) * ln(8 * h / w + w / (4 * h))
+  eta_0   = 376.730313668 ohm   (constante declarada, no medida en esta pieza)
+Valores medidos (MOTOR = python3 -B, un renglon, reproducible):
+  eps_eff = 3.0437601569801833
+  Z0      = 72.522341968959097 ohm
+Piezas declaradas del calculo: sqrt(13) = 3.6055512755 · ln(8.25) = 2.1102132003 · sqrt(eps_eff) = 1.7446375432 · argumento del logaritmo = 8.25 exacto (8 h/w + w/(4h) con w/h = 1.0).
+Estos dos numeros son la REFERENCIA OPERATIVA de 13.6. Viajan con su comando y su ventana; sin comando serian una prediccion disfrazada, que es exactamente lo que la seccion 5 se prohibio a si misma.
+
+### 13.4 CONTROLES DE LA REFERENCIA (por que este metro no es circular)
+  R1. La referencia NO sale del solucionador: sale de una forma cerrada y de una linea de comando. El metro no se valida contra si mismo.
+  R2. La seccion 10 (P3) exige el instrumento sim/ref_hammerstad.py y su crudo. Su obligacion queda asi: ref_hammerstad.py debe imprimir 3.0437601569801833 y 72.522341968959097. Si imprime otra cosa, la discrepancia SE DECLARA y NO SE ADJUDICA, y la referencia no se mueve.
+  R3. Trampa declarada: Z0 es lineal en eta_0. Cambiar la constante moviliza la referencia entera; no es una mejora, es otro metro.
+
+### 13.5 MALLA NOMINAL, VENTANA Y PROCEDIMIENTO DE EXTRACCION (congelados antes de la primera cifra)
+MALLA NOMINAL (nominal, no optima: los criterios se juzgan EN ELLA):
+  caja de calculo: 20 h de ancho por 20 h de alto sobre el plano de masa  (con h = 1.000 mm: 20.000 mm x 20.000 mm)
+  paso: dx = dy = h / 40 = 25.0 um
+  resolucion de la tira: w / dx = 40 celdas
+  frontera: Dirichlet (tira y plano de masa a potencial fijo); la caja NO es una frontera fisica, y por eso se controla en 13.6 C13.4
+  solver: Laplace 2D electrostatico por relajacion, con residuo L2 impreso en el crudo y criterio de parada 1e-12 alcanzado ANTES de leer cualquier magnitud
+  normalizacion: V = 1.0 V en la tira, 0.0 V en el plano de masa
+VENTANA: la de la seccion 6; el par (eps_r, w/h) y la ventana se imprimen en el crudo (C2.2).
+PROCEDIMIENTO CONGELADO DE EXTRACCION (metodo capacitivo, dos corridas, para no circular):
+  Corrida V (referencia): toda la caja con eps = eps_0 (sustrato sustituido por vacio, geometria identica)
+  Corrida D (objeto): la misma caja con el sustrato de eps_r = 4.2
+  capacidad por unidad de longitud: C = Q / V, con V = 1.0 V y Q la carga de la tira
+  eps_eff = C_D / C_V
+  Z0      = 1 / (c0 * sqrt(C_V * C_D)),   c0 = 299792458.0 m/s
+  RAZON DECLARADA (por que vale, y no es una formula nueva): en cuasi-TEM la inductancia por unidad de longitud L es la misma con y sin dielectrico, porque no hay material magnetico; con eso eps_eff = C / C_V y Z0 = sqrt(L / C) = 1 / (c0 * sqrt(C_V * C_D)). Es la consecuencia de la definicion, no un refinamiento.
+
+### 13.6 CRITERIOS SELLADOS (nombrados; el veredicto nunca usa un literal duplicado)
+  C13.1  desviacion relativa de Z0 contra la referencia de 13.3: <= ERR_REL_Z0_MAX
+         ERR_REL_Z0_MAX = 1.5e-2   (es C2.1 de la seccion 5: NO se mueve; ver 13.7)
+  C13.2  desviacion relativa de eps_eff contra la referencia de 13.3: <= ERR_REL_EEFF_MAX
+         ERR_REL_EEFF_MAX = 2.0e-2 (SELLO NUEVO: eps_eff no tenia umbral previo)
+  C13.3  control de metodo, puede diferir y por eso discrimina: |C por carga / C por energia - 1| <= CTRL_METODO_MAX = 1.0e-2
+  C13.4  control de dominio de la caja, puede diferir: al duplicar la caja (40 h por 40 h) cada magnitud se mueve <= CTRL_CAJA_MAX = 5.0e-3; si se mueve mas, el defecto es de DOMINIO y se declara, no se mueve el criterio (N4)
+  C13.5  los criterios C13.1 y C13.2 se juzgan EN LA MALLA NOMINAL de 13.5, y las cinco cifras del crudo (C_V, C_D, eps_eff, Z0, residuo) se reportan JUNTAS: un acierto aislado no es un resultado parcial.
+
+### 13.7 COLISION DE UMBRAL DECLARADA Y NO ADJUDICADA (Z0: 1.5% sellado contra 2.0% del enunciado)
+La seccion 5 sello C2.1: desviacion de Z0 <= 1.5%. El enunciado de esta adenda pide <= 2.0% para Z0 y para eps_eff. Lo unico que se hace aqui es DECLARARLO:
+  - eps_eff no tenia umbral previo: C13.2 = 2.0% es un SELLO NUEVO, no un movimiento.
+  - Z0 SI tenia umbral sellado: C2.1 = 1.5%. Adoptar 2.0% seria MOVER un umbral sellado, que es N4. Por eso esta adenda NO adopta el 2.0% para Z0: la referencia operativa de Z0 queda en el 1.5% ya sellado, que es el mas estricto de los dos.
+  - El 2.0% para Z0 queda REGISTRADO COMO PENDIENTE de decision del dueno. Si se ratifica, es un MOVIMIENTO DECLARADO de C2.1 (familia (a)) y la corrida deja de contar como proteccion para Z0 hasta que se re-selle. No se adjudica.
+  - Ninguno de los dos umbrales se mueve despues de ver una salida (N4).
+
+### 13.8 DIVERGENCIA DECLARADA DEL ENUNCIADO (cifras citadas contra cifras medidas)
+El enunciado cita eps_eff = 3.043765 y Z0 = 72.339 ohm. Medido con el comando de 13.3:
+  eps_eff   3.043765  contra  3.0437601569801833  -> rel 1.59e-06  (COINCIDE: es redondeo)
+  Z0       72.339     contra  72.522341968959097  -> rel 2.53e-03  (DIVERGE: 0.25%)
+La segunda, usada de denominador, consumiria 0.25 de los 1.5 puntos porcentuales de C13.1 antes de la primera corrida. Por eso la referencia operativa es la de 13.3 (forma cerrada mas comando) y las dos cifras citadas entran como [REF], sin autoridad. Se declara, no se adjudica.
+
+### 13.9 GUARDAS DE ESTE FRENTE
+  G13.1 fallo cerrado: si el solver no alcanza el residuo declarado, o si una corrida no termina, el veredicto es CONTRATO ROTO, no PASA (G1 de la seccion 8, aplicado a este frente).
+  G13.2 pieza nueva: el driver 2D electrostatico de este frente ES PIEZA NUEVA. El motor base medido en la seccion 3 (715 l, 30759 B, sha16 1db75ea7b0b8cba4, blob b3fc082245cfc5c33b3e275f966cfb16b04aa2e2) NO se edita ni se reescribe (N2, N3): se copia si se reusa.
+  G13.3 toda cifra del driver viaja con UNIVERSO DECLARADO, MOTOR, UNIDAD y VENTANA (seccion 7), y toda corrida se juzga con el par (eps_r, w/h) impreso en el crudo (C2.2).
+  G13.4 el control de vacio con eps_r = 1.0 en las DOS corridas es una IDENTIDAD ESTRUCTURAL: da 1.0 exacto por construccion y no puede diferir. Se imprime como TRAMPA, nunca como evidencia: una salida que no puede diferir no es evidencia.
+  G13.5 cero notacion monetaria en este apendice y en todo su crudo.
+
+### 13.10 LO QUE ESTA ADENDA NO ABRE
+  - No abre S11 ni S21 del microstrip (A11.8; N5).
+  - No abre Z0 fuera del dominio w/h <= 1 (N5).
+  - No abre la fase 2 termica, ni el frente editorial, ni nada dentro de sfqed-paper (N2).
+  - No autoriza declarar verde con cero filas medidas (N6).
+
+ESTADO: frente Benchmark 2 ABIERTO. El driver 2D queda DESBLOQUEADO para su construccion y para su propio pre-registro de instrumento; el criterio de pase de Z0 sigue siendo el 1.5% sellado en la seccion 5, y eps_eff estrena umbral 2.0% aqui.
