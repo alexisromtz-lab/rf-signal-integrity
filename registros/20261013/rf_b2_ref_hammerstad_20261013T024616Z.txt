@@ -1,0 +1,55 @@
+=== INSTRUMENTO DE REFERENCIA HAMMERSTAD-JENSEN (seccion 5 congelada) ===
+FECHA_UTC = 2026-10-13T02:46:17Z
+UNIVERSO DECLARADO: dos cantidades del caso congelado (eps_r = 4.2, w/h = 1.0)
+                    y nada mas. Sin solver, sin malla, sin crudo ajeno.
+                    Queda fuera: S11 y S21 del microstrip (A11.8, N5) y todo Z0
+                    fuera del dominio w/h <= 1 (N5).
+MOTOR:  python3 -B sim/ref_hammerstad.py
+UNIDAD: razon adimensional (eps_eff) | ohm (Z0) | linea (fuente impresa)
+VENTANA: 2026-10-13T02:46:17Z
+OBLIGACION 13.4/R2: eps_eff = 3.0437601569801833   Z0 = 72.522341968959097
+------------------------------------------------------------------------------
+--- PARAMETROS CONGELADOS ---
+eps_r  = 4.2
+w / h  = 1.0   (BORDE del dominio declarado)
+h      = 1.000e-03 m   (unidad de longitud del experimento, declarada en 13.2)
+eta_0  = 376.730313668 ohm  (constante declarada, NO medida en esta pieza)
+DOMINIO w/h <= 1 -> EN DOMINIO (el borde cuenta como dentro; N5)
+------------------------------------------------------------------------------
+--- FORMAS USADAS (verbatim de la seccion 5) ---
+eps_eff = ((eps_r + 1) / 2) + (((eps_r - 1) / 2) * (1 + 12 * h / w)^(-1/2))
+Z0      = (eta_0 / (2 * pi * sqrt(eps_eff))) * ln(8 * h / w + w / (4 * h))
+------------------------------------------------------------------------------
+--- PIEZAS DECLARADAS DEL CALCULO (13.3) ---
+argumento del logaritmo 8*h/w + w/(4*h) = 8.25   (declarado 8.25 exacto)
+sqrt(13)                                = 3.6055512754639891
+ln(8.25)                                = 2.1102132003465894
+sqrt(eps_eff)                           = 1.7446375431533574
+1 / (2*pi*sqrt(eps_eff))                = 0.091225219654639339
+------------------------------------------------------------------------------
+--- VALORES MEDIDOS POR ESTE COMANDO (formato %.17g) ---
+eps_eff = 3.0437601569801833
+Z0      = 72.522341968959097 ohm
+------------------------------------------------------------------------------
+--- CONTROLES ---
+K1 (R1, no circularidad): la referencia sale de una forma cerrada y de una linea
+   de comando; NO sale del solucionador. El metro no se valida contra si mismo.
+   Medido aqui: la palabra solver aparece 0 veces como fuente de estos numeros.
+K2 (DISCRIMINANTE): el mismo comando sobre OTRA geometria debe dar OTRO numero.
+   w/h = 0.5 -> eps_eff = 2.9199999999999999   Z0 = 97.5578008130055 ohm   (arg = 16.125)
+   la salida PUEDE diferir: SI
+K3 (TRAMPA declarada, R3): Z0 es LINEAL en eta_0.
+   Z0 / eta_0 = 0.19250466271973707
+   (sensibilidad relativa: mover eta_0 mueve TODA la referencia; no es una
+    mejora, es otro metro. No se cita como evidencia.)
+K4 (IDENTIDAD ESTRUCTURAL, G13.4): eps_r = 1.0 ->
+   eps_eff = 1   (da 1.0 exacto por construccion: no puede diferir)
+   TRAMPA: se imprime como identidad, NUNCA como evidencia.
+------------------------------------------------------------------------------
+--- VEREDICTO ---
+C13.4/R2 eps_eff: COINCIDE  (medido 3.0437601569801833 contra obligacion 3.0437601569801833)
+C13.4/R2 Z0     : COINCIDE  (medido 72.522341968959097 contra obligacion 72.522341968959097)
+K2 discriminante: PASA
+FILAS MEDIDAS  : 2 magnitudes (eps_eff, Z0); cero filas no se declara verde (G1/N6)
+VEREDICTO: REFERENCIA CONFIRMADA (RC=0). Las dos cifras de 13.3 quedan
+           respaldadas por comando, no por prediccion.

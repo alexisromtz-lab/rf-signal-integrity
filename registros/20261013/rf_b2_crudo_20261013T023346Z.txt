@@ -1,0 +1,41 @@
+FECHA_UTC = 2026-10-13T02:33:46Z
+MOTOR: python3 -B + numpy 2.4.6 (SOR caja cuadrada)
+REFERENCIA (13.3): eps_eff=3.0437601569801833  Z0=72.522341968959097
+UMBRALES: ERR_REL_Z0_MAX=1.500e-02  ERR_REL_EEFF_MAX=2.000e-02  CTRL_METODO_MAX=1.000e-02  CTRL_CAJA_MAX=5.000e-03
+
+=== MALLA NOMINAL (13.5): caja 20h x 20h, dx = h/40 = 25.0 um, nc = 800 ===
+  [nominal-V] nc=800 caja=20h eps_r=1.0 dx=2.500000e-05 jc=40 an=40 ndir=41 om=1.99217676
+     celdas_activas=638360  iter=3800  reloj=188.40 s  Vmax=1.000000000000
+     residuo_l2=5.049757e-13  convergido=True
+     C_charge =2.670343941514e-11 F/m   C_energia=2.670343941514e-11 F/m   |Cc/Ce-1|=8.882e-16
+  [nominal-D] nc=800 caja=20h eps_r=4.2 dx=2.500000e-05 jc=40 an=40 ndir=41 om=1.99217676
+     celdas_activas=638360  iter=3800  reloj=171.91 s  Vmax=1.000000000000
+     residuo_l2=7.704809e-13  convergido=True
+     C_charge =8.107431240938e-11 F/m   C_energia=8.107431240938e-11 F/m   |Cc/Ce-1|=1.377e-14
+  >> eps_eff = 3.0361000000397449   desv_rel = 2.516676e-03
+  >> Z0      = 71.689253626518138   desv_rel = 1.148733e-02
+  C13.1 (Z0  <= 1.5e-02): PASA
+  C13.2 (eeff<= 2.0e-02): PASA
+
+  TRAMPA (G13.4): corrida V contra V (eps_r=1 en ambas) da eps_eff = 1.0 EXACTO
+                  por construccion. Una salida que no puede diferir no es evidencia.
+
+=== CONTROL DE DOMINIO C13.4: caja duplicada 40h x 40h, mismo dx = 25.0 um, nc = 1600 ===
+  [doble-V] nc=1600 caja=40h eps_r=1.0 dx=2.500000e-05 jc=40 an=40 ndir=41 om=1.99608071
+     celdas_activas=2556760  iter=7500  reloj=1909.05 s  Vmax=1.000000000000
+     residuo_l2=7.658827e-13  convergido=True
+     C_charge =2.662140446360e-11 F/m   C_energia=2.662140446360e-11 F/m   |Cc/Ce-1|=6.550e-15
+  [doble-D] nc=1600 caja=40h eps_r=4.2 dx=2.500000e-05 jc=40 an=40 ndir=41 om=1.99608071
+     celdas_activas=2556760  iter=7600  reloj=1815.12 s  Vmax=1.000000000000
+     residuo_l2=7.906321e-13  convergido=True
+     C_charge =8.102994788141e-11 F/m   C_energia=8.102994788141e-11 F/m   |Cc/Ce-1|=2.132e-14
+  >> eps_eff = 3.0437893685210504   movimiento_rel = 2.532647e-03
+  >> Z0      = 71.819278090883984   movimiento_rel = 1.813723e-03
+  C13.4 (mov <= 5.0e-03 en cada magnitud): PASA
+
+=== RESUMEN (las cinco cifras juntas, C13.5) ===
+  C_V = 2.670343941514e-11 F/m   C_D = 8.107431240938e-11 F/m
+  eps_eff = 3.0361000000397449   Z0 = 71.689253626518138 ohm
+  residuo_Laplace = 5.049757e-13 (V) / 7.704809e-13 (D)
+  C13.3 (|Cc/Ce-1| max) = 1.377e-14   -> PASA
+  VEREDICTO (C13.1 a C13.4 en la malla nominal): PASA

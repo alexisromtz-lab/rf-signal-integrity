@@ -470,3 +470,76 @@ La segunda, usada de denominador, consumiria 0.25 de los 1.5 puntos porcentuales
   - No autoriza declarar verde con cero filas medidas (N6).
 
 ESTADO: frente Benchmark 2 ABIERTO. El driver 2D queda DESBLOQUEADO para su construccion y para su propio pre-registro de instrumento; el criterio de pase de Z0 sigue siendo el 1.5% sellado en la seccion 5, y eps_eff estrena umbral 2.0% aqui.
+
+## Apéndice A13. Acta del Benchmark 2: Microstrip 2D Cuasi-Estático (veredicto medido)
+
+T_UTC_APENDICE = 2026-10-13T04:03:11Z
+BLOB_PRE_ADENDA = d02b8995ff2f7de6dda2fea81c3223335a6d9439
+LINEAS_PRE_ADENDA = 472
+GATE_PRE_ADENDA = RC 0 (pre-vuelo A2.1 corrido sobre la tupla de este apéndice, 2026-10-13T04:02:56Z)
+UNIVERSO DECLARADO: los 3 crudos de registros/20261013/, las 2 piezas nuevas de sim/ y la referencia congelada de 13.3; quedan fuera todo sfqed-paper y el frente editorial (N2) y todo S11/S21 del microstrip (A11.8; N5); .git no entra en ningún conteo salvo donde se declara. MOTOR = python3 -B + numpy 2.4.6 (relajación SOR en caja cuadrada) para las cifras físicas; cat / wc / shasum / git hash-object para las identidades. UNIDAD = razón adimensional / ohm / F por metro / línea / byte / blob / celda. VENTANA = el T_UTC de arriba y el reloj que cada crudo imprime.
+
+### A13.1 VEREDICTO: PASA EN LAS CUATRO PUERTAS
+El crudo registros/20261013/rf_b2_crudo_20261013T023346Z.txt cierra con la línea literal: VEREDICTO (C13.1 a C13.4 en la malla nominal): PASA. Las cuatro puertas, cada una con su cifra y su umbral sellado:
+  C13.1  Z0      = 71.689253626518138 ohm   desviación relativa 1.148733e-02  <= 1.5e-02  PASA
+  C13.2  eps_eff = 3.0361000000397449       desviación relativa 2.516676e-03  <= 2.0e-02  PASA
+  C13.3  |C por carga / C por energía - 1| máximo = 1.377e-14  <= 1.0e-02  PASA
+  C13.4  caja duplicada a 40h: eps_eff se mueve 2.532647e-03 y Z0 se mueve 1.813723e-03, ambas <= 5.0e-03  PASA
+C13.5 se cumple: las cinco cifras del crudo se reportan JUNTAS en A13.2 y ninguna se cita sola.
+
+### A13.2 LAS CINCO CIFRAS JUNTAS (C13.5), nominal y caja doble
+MALLA NOMINAL (13.5): caja 20h x 20h, dx = dy = h/40 = 25.0 um, nc = 800, w/dx = 40 celdas, frontera Dirichlet.
+  corrida V (eps_r = 1.0): C por carga = C por energía = 2.670343941514e-11 F/m · |Cc/Ce-1| = 8.882e-16 · residuo L2 = 5.049757e-13 · celdas activas 638360 · iter 3800 · reloj 188.40 s · Vmax = 1.000000000000
+  corrida D (eps_r = 4.2): C por carga = C por energía = 8.107431240938e-11 F/m · |Cc/Ce-1| = 1.377e-14 · residuo L2 = 7.704809e-13 · celdas activas 638360 · iter 3800 · reloj 171.91 s · Vmax = 1.000000000000
+  eps_eff = 3.0361000000397449 · Z0 = 71.689253626518138 ohm · residuo Laplace 5.049757e-13 (V) / 7.704809e-13 (D)
+CONTROL DE DOMINIO C13.4 (caja 40h x 40h, mismo dx = 25.0 um, nc = 1600):
+  corrida V: C por carga = C por energía = 2.662140446360e-11 F/m · |Cc/Ce-1| = 6.550e-15 · residuo L2 = 7.658827e-13 · celdas activas 2556760 · iter 7500 · reloj 1909.05 s · Vmax = 1.000000000000
+  corrida D: C por carga = C por energía = 8.102994788141e-11 F/m · |Cc/Ce-1| = 2.132e-14 · residuo L2 = 7.906321e-13 · celdas activas 2556760 · iter 7600 · reloj 1815.12 s · Vmax = 1.000000000000
+  eps_eff = 3.0437893685210504 (movimiento 2.532647e-03) · Z0 = 71.819278090883984 ohm (movimiento 1.813723e-03)
+G13.1 queda CERRADO, no abierto: los cuatro residuos (5.049757e-13 · 7.704809e-13 · 7.658827e-13 · 7.906321e-13) están por debajo del 1e-12 congelado en 13.5, las cuatro corridas imprimen convergido=True, y las cuatro imprimen Vmax = 1.000000000000 (Dirichlet de la tira intacto). Ninguna corrida murió a mitad.
+
+### A13.3 LA ANOMALÍA DE eps_eff, RESUELTA POR MEDICIÓN (no por argumento)
+El barrido previo de refinamiento dejó una anomalía declarada: eps_eff no era monótona en nc y la malla más fina era la MÁS LEJANA de la referencia (nc=200 -> 3.0465279024744465 · nc=400 -> 3.0395389932916679 · nc=800 -> 3.0361000000397449, contra la referencia 3.0437601569801833). C13.4 mide la causa y la cierra:
+  eps_eff a 20h: 3.0361000000397449  ->  desviación frente a la referencia  -2.517e-03
+  eps_eff a 40h: 3.0437893685210504  ->  desviación frente a la referencia  +9.597e-06
+Al duplicar la caja, eps_eff no se mueve un poco: ATERRIZA sobre la forma cerrada de 13.3 (residuo relativo 9.6e-06). El defecto era de DOMINIO (truncamiento del campo de dispersión en una caja de 20h), no del solver y no de la referencia. Se declara, no se adjudica: el criterio NO se mueve (N4) y la malla nominal sigue siendo la de 13.5, que es donde se juzgan C13.1 y C13.2 (C13.5).
+Z0 se comporta distinto y se declara distinto: a 20h la desviación es -1.149e-02 y a 40h es -9.694e-03. Converge hacia la referencia pero LENTO (la inductancia efectiva depende del campo lejano, y una caja de 40h todavía lo trunca). En consecuencia la malla nominal de Z0 carga un sesgo de truncamiento de caja ACOTADO y declarado de 1.81e-03 (el movimiento medido), que se consume dentro del presupuesto de 1.5e-02 de C13.1 sin agotarlo.
+
+### A13.4 HALLAZGO DE INSTRUMENTO: EL RC DEL DRIVER NO ESTÁ CABLEADO
+El driver sim/b2_microstrip_2d.py imprime PASA o NO PASA en su última línea, pero main() no devuelve valor y el módulo no llama a sys.exit: el código de retorno del proceso es 0 en los dos casos. Además la corrida se lanzó en segundo plano sin wait, con lo que su RC no quedó capturado. Las dos cosas se declaran:
+  - RC del corredor: NO CAPTURADO (el lanzamiento no lo recogió).
+  - RC que el driver habría dado: 0, y por eso no es informativo: el veredicto vive en la última línea del crudo, no en el código de retorno.
+Lectura autoritativa del veredicto: la línea VEREDICTO del crudo, leída con cat. El contraste es el instrumento hermano: sim/ref_hammerstad.py SÍ termina en sys.exit(main()) con rc = 0 o 2, y su crudo caduco de 2026-10-13T024127Z sí salió con RC 1 por excepción. El defecto no es del objeto medido: es una asimetría entre las dos piezas nuevas, y se asienta sin alterar el solver ni el driver (cero escrituras sobre piezas en vuelo).
+  NOTA de fidelidad: el crudo caduco (52 l) imprime la línea K3 sin formato (Z0 / eta_0 = %.17g) porque murió antes de formatearla. Se conserva tal cual: es la firma del fallo, no un texto a reparar.
+
+### A13.5 DEFECTOS DEL GATE A2.1, DECLARADOS Y NO ADJUDICADOS
+Las dos piezas nuevas pasaron por tools/gate_pre_escritura.sh antes de escribirse, y el gate se midió en sus propios bordes:
+  - objetivo RELATIVO (sim/ref_hammerstad.py): RC 128. El gate resuelve el directorio con el dirname del objetivo y luego ejecuta git -C sobre él, con lo que el prefijo se duplica (sim/sim/ref_hammerstad.py -> fatal: could not open). En consecuencia el gate EXIGE objetivo ABSOLUTO: llamarlo en relativo no mide el objeto, mide su propio camino.
+  - objetivo ABSOLUTO sobre pieza INEXISTENTE: RC 10 (COLISION: no existe). Correcto en sí, pero es la ÚNICA puerta por la que puede entrar un alta nueva.
+  - pieza nueva ya creada y sin rastrear: RC 13 (ESTADO SUCIO). El arnés no resuelve de forma transparente el alta de un objetivo nuevo si este no pasa antes por la excepción BLOB_PRE ausente (RC 10).
+Los tres códigos se declaran aquí, con su comando, sin alterar el código del solver ni del gate. El pre-vuelo del apéndice que Ud. lee SÍ cerró en RC 0 sobre la tupla completa (objetivo absoluto, blob d02b8995ff2f7de6dda2fea81c3223335a6d9439, huella A13.1, 472 líneas).
+
+### A13.6 PENDIENTE DE SU DECISIÓN, SIN ADJUDICAR (Z0: 1.5% sellado contra 2.0% del enunciado)
+13.7 queda como estaba: C13.1 usa el 1.5% sellado en la sección 5 (el más estricto) y el 2.0% para Z0 que pide el enunciado queda REGISTRADO COMO PENDIENTE. No se mueve ningún umbral después de ver la salida (N4). Con la cifra medida, la decisión no cambia este veredicto: Z0 pasa por las dos puertas (1.148733e-02 < 1.5e-02 < 2.0e-02).
+
+### A13.7 CRUDOS: IDENTIDADES Y LO QUE SE CONSERVA
+Ventana 2026-10-13T04:03Z, los tres procesos de escritura ya terminados:
+  registros/20261013/rf_b2_crudo_20261013T023346Z.txt           41 l  2520 B  sha16 eb2e56cf7e0eed80  (C13.1 a C13.4, veredicto PASA)
+  registros/20261013/rf_b2_ref_hammerstad_20261013T024616Z.txt  55 l  3365 B  sha16 61cbd34970761eb2  (referencia 13.3, RC 0)
+  registros/20261013/rf_b2_ref_hammerstad_20261013T024127Z.txt  52 l  3118 B  sha16 689516bc21a89be4  (CADUCO: murió por TypeError en K3; se conserva fechado, no se purga)
+Toda cifra de conteo caduca al escribirse: estas tres corresponden a esa ventana. Las identidades no se citan de memoria: salen de wc y de shasum.
+
+### A13.8 PIEZAS DE ESTE FRENTE (identidad medida, no declarada)
+  sim/ref_hammerstad.py     141 l  6371 B  blob 6de87f17cb89ed8709b42fe91ff18e82f12ec37f
+  sim/b2_microstrip_2d.py   172 l  8135 B  blob cf5e8cdf97fc945af2b14f9471e8ab0315f277da
+G13.2 se cumplió: el motor base de sfqed-paper (sim/maxwell2d.py, 715 l, 30759 B, sha16 1db75ea7b0b8cba4, blob b3fc082245cfc5c33b3e275f966cfb16b04aa2e2) NO se editó y nada dentro de sfqed-paper se tocó (N2). Estado del árbol de este repo antes de este apéndice: HEAD 5fbf8291dfc4298e89ae72709004fc04394d0ff3, rama main, sin remoto declarado, cinco rutas sin rastrear y cero modificadas.
+
+### A13.9 LO QUE ESTE APÉNDICE NO ABRE
+  - No abre S11 ni S21 del microstrip (A11.8; N5): sigue sin puerto modal ni descomposición modal.
+  - No abre Z0 fuera del dominio w/h <= 1 (N5).
+  - No abre la fase 2 térmica ni el frente editorial ni nada dentro de sfqed-paper (N2).
+  - No declara verde con cero filas medidas: se midieron 6 corridas y 3 crudos (N6).
+  - No mueve ningún umbral sellado (N4).
+G13.5 cumplida: cero notación monetaria en este apéndice y en los crudos que cita.
+
+ESTADO: Benchmark 2 CERRADO EN VERDE por C13.1 a C13.4 sobre la malla nominal de 13.5, con el sesgo de truncamiento de caja declarado (eps_eff 2.5e-03 hacia la referencia; Z0 1.8e-03) y con el 2.0% de Z0 todavía pendiente de su decisión. El bloque (las 2 piezas y los 3 crudos) entra en commit atómico de custodia; ninguna cifra de este apéndice se apoya en memoria: todas salen de comando.
