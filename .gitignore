@@ -1,0 +1,21 @@
+# HUELLA-GITIGNORE-PUBLICO-rf-signal-integrity-20261015
+# Repo PUBLICO. Guarda de pre-vuelo: nada de entorno, llaves ni datos crudos
+# entra al arbol por un `git add -A`. (No afecta archivos ya rastreados.)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+*.p12
+*.pfx
+.npmrc
+.netrc
+secrets/
+credentials/
+*.db
+*.sqlite
+__pycache__/
+.venv/
+venv/
+.DS_Store
