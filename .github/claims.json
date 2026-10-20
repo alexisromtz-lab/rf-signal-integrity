@@ -1,0 +1,7 @@
+{
+  "huella": "HUELLA-CLAIMS-RF-SIGNAL-INTEGRITY-20261020",
+  "repo": "rf-signal-integrity",
+  "clase": "B",
+  "estado": "SIN_DATO_MECANIZABLE",
+  "motivo": "la cifra vive en 5 registros .txt crudos y 0 artefactos .json (medido con git ls-files el 2026-10-20); derivarla exige un parser nuevo, que el pre-registro declara como 'derivable, no derivado'. No se inventa la derivacion."
+}
