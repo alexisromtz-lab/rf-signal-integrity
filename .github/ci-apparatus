@@ -1,6 +1,8 @@
-# HUELLA-CI-PYTHON-V5-PROHIBICION-EVAL-20261020
-# Contrato v5: comando: + mide: (+ evidencia: si mide es manifiesto o banco).
+# HUELLA-CI-PYTHON-V6-INSTRUMENTO-JUNITXML-20261020
+# Contrato v6: comando: + mide: + evidencia: (junitxml si mide=tests; regex si manifiesto o banco).
 # La plantilla de este repo ya no firma verde con un comando que no mide.
-comando: python .github/verify_manifest.py
-mide: manifiesto
-evidencia: MANIFIESTO_SANO: [0-9]+
+# El veredicto se cuenta sobre los <testcase> del informe que el comando escribe.
+# HUELLA-RF-CI-APPARATUS-CIFRAS-20261020 · HUELLA-RF-CI-APPARATUS-V6-20261020
+comando: python .github/verify_manifest.py && python -m pytest -q --junitxml=/tmp/junit.xml
+mide: tests
+evidencia: junitxml
