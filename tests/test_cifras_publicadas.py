@@ -321,6 +321,45 @@ def cifra_readme(patron, texto):
     return float(m.group(1))
 
 
+# -------------------------------------------- portadores que DEVUELVEN cifra
+# HUELLA-RF-PARSER-CRUCE-DOS-VALORES-20261021: el verificador de claims
+# (sim/verify_claims.py, dialecto `parser:`) deriva solo si la funcion DEVUELVE
+# la cifra; un `test_*` asevera y devuelve None, que se lee como testigo. Estos
+# portadores devuelven, y el test llama al portador: un solo lugar donde el
+# numero se calcula, dos puertas que lo exigen.
+
+
+def cifra_umbral_c11():
+    """El umbral C1.1 que el crudo adjudica (no el que el README declara)."""
+    return criterios(leer(CRUDO_SELLADO))[0.001]["C1.1"][1]
+
+
+def cifra_cruce_falla():
+    """La malla mas fina que FALLA: extremo alto del cruce."""
+    cs = criterios(leer(CRUDO_EXTRA))
+    return min(dx for dx, c in cs.items() if c["C1.1"][2] == "FALLA")
+
+
+def cifra_cruce_pasa():
+    """La malla mas gruesa que PASA: extremo bajo del cruce."""
+    cs = criterios(leer(CRUDO_EXTRA))
+    return max(dx for dx, c in cs.items() if c["C1.1"][2] == "PASA")
+
+
+def cifra_hammerstad_z0():
+    """La Z0 de la referencia Hammerstad: el crudo B2 y su obligacion coinciden."""
+    ref = REF_B2.search(leer(CRUDO_B2))
+    assert ref, "B2_SIN_REFERENCIA"
+    eps, z0 = ref.group(1), ref.group(2)
+    for ruta in (REF_B2_A, REF_B2_B):
+        m = OBLIGACION.search(leer(ruta))
+        assert m, "B2_SIN_OBLIGACION en %s" % ruta.name
+        assert (m.group(1), m.group(2)) == (eps, z0), (
+            "B2_OBLIGACION_DIVERGENTE en %s: %r" % (ruta.name, m.groups())
+        )
+    return float(z0)
+
+
 # ---------------------------------------------------------------- portadores
 
 
@@ -372,7 +411,7 @@ def test_el_umbral_c11_es_unico_en_los_dos_crudos():
 def test_el_umbral_c11_es_el_del_readme():
     readme = leer(README)
     del_readme = cifra_readme(r"C11_TOL_ABS\s*=\s*([0-9.]+e[+-]?\d+)", readme)
-    del_crudo = criterios(leer(CRUDO_SELLADO))[0.001]["C1.1"][1]
+    del_crudo = cifra_umbral_c11()
     assert del_readme == del_crudo, (
         "UMBRAL_DIVERGENTE: README dice %r y el crudo adjudica con %r" % (del_readme, del_crudo)
     )
@@ -391,12 +430,11 @@ def test_cuatro_mallas_fallan_y_el_readme_lo_dice():
 
 
 def test_el_cruce_cae_entre_dos_mallas_consecutivas():
-    cs = criterios(leer(CRUDO_EXTRA))
-    falla = sorted(dx for dx, c in cs.items() if c["C1.1"][2] == "FALLA")
-    pasa = sorted(dx for dx, c in cs.items() if c["C1.1"][2] == "PASA")
-    assert min(falla) == 0.000125, "FALLA_MAS_FINO: %r" % min(falla)
-    assert max(pasa) == 6.25e-05, "PASA_MAS_GRUESO: %r" % max(pasa)
-    assert min(falla) / max(pasa) == 2.0, "EL_CRUCE_NO_ES_UN_PASO_DE_REFINAMIENTO"
+    falla = cifra_cruce_falla()
+    pasa = cifra_cruce_pasa()
+    assert falla == 0.000125, "FALLA_MAS_FINO: %r" % falla
+    assert pasa == 6.25e-05, "PASA_MAS_GRUESO: %r" % pasa
+    assert falla / pasa == 2.0, "EL_CRUCE_NO_ES_UN_PASO_DE_REFINAMIENTO"
     readme = leer(README)
     assert re.search(r"1\.25e-4 m[`\s]*\(FALLA\)", readme), "README_SIN_EL_EXTREMO_QUE_FALLA"
     assert re.search(r"6\.25e-5 m[`\s]*\(PASA\)", readme), "README_SIN_EL_EXTREMO_QUE_PASA"
@@ -480,12 +518,7 @@ def test_la_referencia_hammerstad_esta_en_crudo_referencias_y_readme():
     ref_crudo = REF_B2.search(leer(CRUDO_B2))
     assert ref_crudo, "B2_SIN_REFERENCIA"
     eps, z0 = ref_crudo.group(1), ref_crudo.group(2)
-    for ruta in (REF_B2_A, REF_B2_B):
-        m = OBLIGACION.search(leer(ruta))
-        assert m, "B2_SIN_OBLIGACION en %s" % ruta.name
-        assert (m.group(1), m.group(2)) == (eps, z0), (
-            "B2_OBLIGACION_DIVERGENTE en %s: %r" % (ruta.name, m.groups())
-        )
+    assert cifra_hammerstad_z0() == float(z0), "B2_Z0_NO_ES_EL_DEL_PORTADOR"
     readme = leer(README)
     assert eps in readme, "README_SIN_EPS_DE_LA_REFERENCIA: %r" % eps
     assert z0 in readme, "README_SIN_Z0_DE_LA_REFERENCIA: %r" % z0
