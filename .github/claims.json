@@ -1,7 +1,49 @@
 {
   "huella": "HUELLA-CLAIMS-RF-SIGNAL-INTEGRITY-20261020",
   "repo": "rf-signal-integrity",
-  "clase": "B",
-  "estado": "SIN_DATO_MECANIZABLE",
-  "motivo": "la cifra vive en 5 registros .txt crudos y 0 artefactos .json (medido con git ls-files el 2026-10-20); derivarla exige un parser nuevo, que el pre-registro declara como 'derivable, no derivado'. No se inventa la derivacion."
+  "clase": "A",
+  "acta": "HUELLA-CLAIMS-RF-MECANIZABLE-20261020",
+  "nota": "El portador de estas cifras es un .txt sellado, no un .json: la derivacion es el parser de tests/test_cifras_publicadas.py, no una expresion sobre un campo JSON. deriva nombra la funcion que recalcula la cifra desde el crudo.",
+  "claims": [
+    {
+      "id": "C11_umbral",
+      "afirma": "1.0e-4",
+      "dato": "registros/20261012/rf_b1_crudo_sellado_20261012T205817Z.txt",
+      "deriva": "parser:tests/test_cifras_publicadas.py::test_el_umbral_c11_es_el_del_readme",
+      "polaridad": "exacto",
+      "prosa": "README.md"
+    },
+    {
+      "id": "C11_cruce_falla",
+      "afirma": "1.25e-4",
+      "dato": "registros/20261012/rf_b1_crudo_extra_20261012T205836Z.txt",
+      "deriva": "parser:tests/test_cifras_publicadas.py::test_el_cruce_cae_entre_dos_mallas_consecutivas",
+      "polaridad": "exacto",
+      "prosa": "README.md"
+    },
+    {
+      "id": "C11_cruce_pasa",
+      "afirma": "6.25e-5",
+      "dato": "registros/20261012/rf_b1_crudo_extra_20261012T205836Z.txt",
+      "deriva": "parser:tests/test_cifras_publicadas.py::test_el_cruce_cae_entre_dos_mallas_consecutivas",
+      "polaridad": "exacto",
+      "prosa": "README.md"
+    },
+    {
+      "id": "malla_requerida",
+      "afirma": "8.25e-5",
+      "dato": "registros/20261012/rf_b1_crudo_extra_20261012T205836Z.txt",
+      "deriva": "parser:tests/test_cifras_publicadas.py::test_la_malla_requerida_cae_en_el_cruce",
+      "polaridad": "exacto",
+      "prosa": "README.md"
+    },
+    {
+      "id": "hammerstad_z0",
+      "afirma": "72.522341968959097",
+      "dato": "registros/20261013/rf_b2_ref_hammerstad_20261013T024616Z.txt",
+      "deriva": "parser:tests/test_cifras_publicadas.py::test_la_referencia_hammerstad_esta_en_crudo_referencias_y_readme",
+      "polaridad": "exacto",
+      "prosa": "README.md"
+    }
+  ]
 }
