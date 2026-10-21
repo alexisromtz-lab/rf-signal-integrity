@@ -1,11 +1,18 @@
 # HUELLA-EJECUTOR-REF-HAMMERSTAD-RF-20261021
+# HUELLA-CORRECCION-IMPORT-REF-HAMMERSTAD-20261021
 """Ejecutor directo de la referencia cerrada Hammerstad-Jensen."""
 
 from __future__ import annotations
 
 import math
+import sys
+from pathlib import Path
 
-import ref_hammerstad as referencia
+RAIZ = Path(__file__).resolve().parents[1]
+if str(RAIZ) not in sys.path:
+    sys.path.insert(0, str(RAIZ))
+
+from sim import ref_hammerstad as referencia  # noqa: E402
 
 
 def test_caso_congelado_reproduce_las_dos_magnitudes_y_el_argumento():
