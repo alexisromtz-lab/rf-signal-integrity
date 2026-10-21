@@ -16,6 +16,8 @@ Falla cerrado: si un crudo falta o está vacío, el test falla. No se inventa la
 cifra que el portador no trae.
 """
 
+import inspect
+import json
 import math
 import re
 from pathlib import Path
@@ -402,8 +404,16 @@ def test_el_cruce_cae_entre_dos_mallas_consecutivas():
 
 def test_la_malla_requerida_cae_en_el_cruce():
     readme = leer(README)
-    requerida = cifra_readme(r"dx ≤ ([0-9.]+e-5) m", readme)
-    assert 6.25e-05 < requerida <= 0.000125, "MALLA_REQUERIDA_FUERA_DEL_CRUCE: %r" % requerida
+    declaradas = re.findall(r"dx ≤ ([0-9.]+e[-+]?\d+) m", readme)
+    assert len(set(declaradas)) == 1, "MALLA_REQUERIDA_AMBIGUA: %r" % (declaradas,)
+    requerida = cifra_readme(r"dx ≤ ([0-9.]+e[-+]?\d+) m", readme)
+    cs = criterios(leer(CRUDO_EXTRA))
+    falla = min(dx for dx, c in cs.items() if c["C1.1"][2] == "FALLA")
+    pasa = max(dx for dx, c in cs.items() if c["C1.1"][2] == "PASA")
+    assert pasa < requerida <= falla, (
+        "MALLA_REQUERIDA_FUERA_DEL_CRUCE: %r no cae en (%r, %r] medido en %s"
+        % (requerida, pasa, falla, CRUDO_EXTRA.name)
+    )
     celdas = LAM0_M / requerida
     assert 355.0 <= celdas <= 365.0, "CELDAS_DECLARADAS_FALSAS: lambda0/dx = %.2f" % celdas
     assert abs(celdas - 360.0) <= 5.0, "CELDAS_DECLARADAS_FALSAS: %.2f vs 360" % celdas
@@ -560,3 +570,135 @@ def test_el_verificador_sabe_fallar():
         cazado = inconsistencias(mutado)
         assert cazado, "MUTACION_NO_CAZADA: %s — el verificador no discrimina" % nombre
     assert inconsistencias(""), "CRUDO_VACIO_NO_CAZADO"
+
+
+# ------------------------------------------------------------- testigo de claims
+# HUELLA-RF-CLAIMS-WITNESS-20261020
+#
+# El claims.json deja de ser prosa: cada claim tiene que nombrar un portador que
+# existe, una funcion de este modulo que lo lea, y una prosa que cita la cifra.
+# Si alguno de los tres eslabones falta, el testigo falla cerrado.
+
+CLAIMS = RAIZ / ".github" / "claims.json"
+DERIVA = re.compile(r"^parser:(?P<ruta>[^:]+)::(?P<funcion>[A-Za-z_][A-Za-z0-9_]*)$")
+CAMPOS_CLAIM = ("id", "afirma", "dato", "deriva", "polaridad", "prosa")
+
+
+def cargar_claims(ruta=CLAIMS):
+    """Lee el claims.json; si falta o no parsea, falla cerrado."""
+    if not ruta.is_file():
+        raise FileNotFoundError("CLAIMS_INVALIDO: falta %s" % ruta)
+    try:
+        return json.loads(ruta.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise ValueError("CLAIMS_INVALIDO: %s no parsea (%s)" % (ruta.name, exc))
+
+
+def portadores(dato):
+    """Constantes de este modulo que fijan el portador declarado."""
+    objetivo = (RAIZ / dato).resolve()
+    return [n for n, v in globals().items() if isinstance(v, Path) and v.resolve() == objetivo]
+
+
+def inconsistencias_claims(obj):
+    """Devuelve las mentiras medibles del claims.json (vacio = contrato cumplido)."""
+    fallos = []
+    if not isinstance(obj, dict):
+        return ["CLAIMS_INVALIDO: la raiz no es un objeto"]
+    if obj.get("clase") != "A":
+        fallos.append("CLAIMS_INVALIDO: clase %r no es mecanizable" % (obj.get("clase"),))
+    lista = obj.get("claims")
+    if not isinstance(lista, list) or not lista:
+        return fallos + ["CLAIMS_VACIO: un claims.json sin claims no declara nada"]
+
+    for i, c in enumerate(lista):
+        faltan = [k for k in CAMPOS_CLAIM if not isinstance(c, dict) or not c.get(k)]
+        if faltan:
+            fallos.append("CLAIMS_INVALIDO: claim %d sin %s" % (i, ",".join(faltan)))
+            continue
+        nombre = c["id"]
+
+        portador = RAIZ / c["dato"]
+        fijado = portadores(c["dato"])
+        if not portador.is_file() or not fijado:
+            fallos.append(
+                "DATO_SIN_PORTADOR: %s declara %s y no hay crudo ni constante que lo fije"
+                % (nombre, c["dato"])
+            )
+
+        m = DERIVA.match(c["deriva"])
+        funcion = globals().get(m.group("funcion")) if m else None
+        if not m or m.group("ruta") != "tests/test_cifras_publicadas.py" or not callable(funcion):
+            fallos.append(
+                "PARSER_AUSENTE: %s deriva %r no nombra una funcion de este modulo"
+                % (nombre, c["deriva"])
+            )
+        elif fijado and not any(p in inspect.getsource(funcion) for p in fijado):
+            fallos.append(
+                "DERIVACION_CIEGA: %s deriva en %s, que no lee %s"
+                % (nombre, funcion.__name__, "/".join(fijado))
+            )
+
+        prosa = RAIZ / c["prosa"]
+        if not prosa.is_file():
+            fallos.append("PROSA_AUSENTE: %s cita %s" % (nombre, c["prosa"]))
+        elif c["afirma"] not in prosa.read_text(encoding="utf-8"):
+            fallos.append(
+                "README_DESALINEADO: %s afirma %r y %s no lo dice" % (nombre, c["afirma"], c["prosa"])
+            )
+    return fallos
+
+
+def test_el_claims_declara_solo_lo_que_el_parser_mide():
+    """Portador real, derivacion nombrada que lo lee, prosa que cita la cifra."""
+    fallos = inconsistencias_claims(cargar_claims())
+    assert not fallos, "; ".join(fallos)
+
+
+def test_el_testigo_de_claims_sabe_fallar():
+    """Falsificador del testigo: cada mentira del claims.json tiene que ser cazada."""
+    sano = cargar_claims()
+    assert not inconsistencias_claims(sano), "EL_CLAIMS_SANO_YA_FALLA"
+
+    def mutar(indice, campo, valor):
+        copia = json.loads(json.dumps(sano))
+        copia["claims"][indice][campo] = valor
+        return copia
+
+    mutaciones = {
+        "DATO_SIN_PORTADOR": mutar(0, "dato", "registros/20261012/crudo_que_no_existe.txt"),
+        "PARSER_AUSENTE": mutar(
+            0, "deriva", "parser:tests/test_cifras_publicadas.py::test_que_no_existe"
+        ),
+        "DERIVACION_CIEGA": mutar(
+            0,
+            "deriva",
+            "parser:tests/test_cifras_publicadas.py::test_la_trampa_v_contra_v_esta_declarada",
+        ),
+        "README_DESALINEADO": mutar(0, "afirma", "9.99e-9"),
+    }
+    for esperado, roto in mutaciones.items():
+        cazado = inconsistencias_claims(roto)
+        assert any(f.startswith(esperado + ":") for f in cazado), (
+            "MUTACION_NO_CAZADA: %s — el testigo no discrimina (%r)" % (esperado, cazado)
+        )
+
+    vacio = {"clase": "A", "claims": []}
+    assert any(f.startswith("CLAIMS_VACIO") for f in inconsistencias_claims(vacio)), (
+        "CLAIMS_VACIO_NO_CAZADO"
+    )
+    assert any(f.startswith("CLAIMS_INVALIDO") for f in inconsistencias_claims({"clase": "B"})), (
+        "CLASE_NO_MECANIZABLE_NO_CAZADA"
+    )
+
+    roto = Path("/tmp/rf_claims_roto.json")
+    roto.write_text("{ esto no es json", encoding="utf-8")
+    try:
+        try:
+            cargar_claims(roto)
+        except ValueError as exc:
+            assert "CLAIMS_INVALIDO" in str(exc), "CLAIMS_INVALIDO_SIN_CAUSA"
+        else:
+            raise AssertionError("CLAIMS_ROTO_PARSEA")
+    finally:
+        roto.unlink(missing_ok=True)
