@@ -3,6 +3,11 @@
   "repo": "rf-signal-integrity",
   "clase": "A",
   "acta": "HUELLA-CLAIMS-RF-MECANIZABLE-20261020",
+  "datos": {
+    "registros/20261012/rf_b1_crudo_sellado_20261012T205817Z.txt": "71b77f8d2e9863e5",
+    "registros/20261012/rf_b1_crudo_extra_20261012T205836Z.txt": "62cebe9833f63d8c",
+    "registros/20261013/rf_b2_ref_hammerstad_20261013T024616Z.txt": "61cbd34970761eb2"
+  },
   "nota": "El portador de estas cifras es un .txt sellado, no un .json: la derivacion es el parser de tests/test_cifras_publicadas.py, no una expresion sobre un campo JSON. deriva nombra la funcion que recalcula la cifra desde el crudo. HUELLA-CLAIMS-RF-DERIVACION-PERMANENTE-20261021: los cinco declaran su modo — cuatro derivan porque su portador DEVUELVE la cifra, y malla_requerida se declara testigo_permanente con el motivo medido, para que el silencio de un claim sin modo no vuelva a firmar verde aqui.",
   "claims": [
     {
