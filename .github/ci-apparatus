@@ -4,5 +4,7 @@
 # El veredicto se cuenta sobre los <testcase> del informe que el comando escribe.
 # HUELLA-RF-CI-APPARATUS-CIFRAS-20261020 · HUELLA-RF-CI-APPARATUS-V6-20261020
 comando: python .github/verify_manifest.py && python -m pytest -q --junitxml=/tmp/junit.xml
-mide: tests
-evidencia: junitxml
+mide: manifiesto+tests
+evidencia: MANIFIESTO_SANO: [0-9]+; junitxml
+# HUELLA-APPARATUS-MODO-COMPUESTO-20261020 · la cadena mide DOS cosas y el
+# certificado cubre las dos: MANIFIESTO_SANO (entero > 0) y junitxml (<testcase>).
