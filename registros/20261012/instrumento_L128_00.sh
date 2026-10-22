@@ -1,4 +1,5 @@
-cd /Users/marlene/rf-signal-integrity || exit 1
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)" || exit 1
+cd "$SCRIPT_DIR/../.." || exit 1
 export TZ=UTC
 python3 -B - <<'PY'
 import math, numpy as np
