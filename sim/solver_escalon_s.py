@@ -154,6 +154,13 @@ GEOM_COLA_LAM = 10.0       # monitor 2    -> inicio de la esponja lejana
 # seccion 6 (20 celdas por longitud de onda guiada) se mide contra lambda_vacio.
 
 
+def paso_temporal(dx):
+    """Devuelve el paso temporal estable fijado por S_CFL."""
+    if dx <= 0.0:
+        raise ValueError("dx debe ser positivo")
+    return S_CFL * dx / C0
+
+
 def perfil_sigma(n, dx):
     """Absorbedor en los dos extremos: grado M_ESP, longitud fisica L_ESP_M."""
     n_abs = int(round(L_ESP_M / dx))
@@ -168,11 +175,18 @@ def perfil_sigma(n, dx):
     return sigma, n_abs
 
 
-def corrida(dx, epsr, i_fuente, i_mon1, i_mon2, n_pasos, dt):
-    """Un Yee 1D con ambas leyes de curl con el mismo signo (errata A11.2)."""
+def corrida(dx, epsr, i_fuente, i_mon1, i_mon2, n_pasos, dt, frontera_derecha="esponja"):
+    """Un Yee 1D; ``pec`` habilita el control reflectivo del borde derecho.
+
+    HUELLA-RF-FRONTERA-DERECHA-PEC-CONTROL-20261022
+    """
+    if frontera_derecha not in ("esponja", "pec"):
+        raise ValueError("frontera_derecha debe ser 'esponja' o 'pec'")
     n = int(epsr.size)
     eps = epsr * EPS0
-    sigma, _ = perfil_sigma(n, dx)
+    sigma, n_abs = perfil_sigma(n, dx)
+    if frontera_derecha == "pec":
+        sigma[n - n_abs :] = 0.0
     ca = (1.0 - sigma * dt / (2.0 * eps)) / (1.0 + sigma * dt / (2.0 * eps))
     cb = (dt / (eps * dx)) / (1.0 + sigma * dt / (2.0 * eps))
     ch = dt / (MU0 * dx)
@@ -187,6 +201,8 @@ def corrida(dx, epsr, i_fuente, i_mon1, i_mon2, n_pasos, dt):
         ez[i_fuente] -= math.exp(-(((t - TD_S) / TAU_S) ** 2)) * math.sin(
             2.0 * math.pi * F0_HZ * (t - TD_S)
         )
+        if frontera_derecha == "pec":
+            ez[-1] = 0.0
         m1[p] = ez[i_mon1]
         m2[p] = ez[i_mon2]
     return m1, m2
@@ -212,7 +228,7 @@ def correr_resolucion(dx):
     i_mon2 = i_esc + int(round(GEOM_ESC_MON2_LAM * n_lam))
     n = i_mon2 + int(round(GEOM_COLA_LAM * n_lam)) + n_abs + 1
 
-    dt = S_CFL * dx / C0
+    dt = paso_temporal(dx)
     n_pasos = int(math.ceil(T_TOTAL_S / dt))
     t_total = n_pasos * dt
 

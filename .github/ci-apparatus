@@ -1,10 +1,8 @@
 # HUELLA-CI-PYTHON-V6-INSTRUMENTO-JUNITXML-20261020
-# Contrato v6: comando: + mide: + evidencia: (junitxml si mide=tests; regex si manifiesto o banco).
-# La plantilla de este repo ya no firma verde con un comando que no mide.
-# El veredicto se cuenta sobre los <testcase> del informe que el comando escribe.
+# Contrato v6: comando: + mide: + evidencia junitxml para cada testcase.
+# El aparato mide la batería numérica/semántica; el manifiesto pasivo deja de ser la puerta CI.
 # HUELLA-RF-CI-APPARATUS-CIFRAS-20261020 · HUELLA-RF-CI-APPARATUS-V6-20261020
-comando: python .github/verify_manifest.py && python -m pytest -q --junitxml=/tmp/junit.xml
-mide: manifiesto+tests
-evidencia: MANIFIESTO_SANO: [0-9]+; junitxml
-# HUELLA-APPARATUS-MODO-COMPUESTO-20261020 · la cadena mide DOS cosas y el
-# certificado cubre las dos: MANIFIESTO_SANO (entero > 0) y junitxml (<testcase>).
+# HUELLA-RF-CI-SEMANTICA-NV6-20261022
+comando: python3 -m pytest -q tests --junitxml=/tmp/junit.xml
+mide: tests
+evidencia: junitxml
